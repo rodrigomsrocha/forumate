@@ -1,10 +1,10 @@
 import Fastify from "fastify";
 
+import authRoute from "./routes/authRoute";
+
 const app = Fastify();
 
-app.get("/", () => {
-  return { message: "Hello world" };
-});
+app.register(authRoute);
 
 app
   .listen({ port: 3001 })
