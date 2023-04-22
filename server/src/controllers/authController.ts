@@ -5,11 +5,49 @@ import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { client } from "../lib/fauna";
 
+interface User {
+  name: string;
+  email: string;
+  password: string;
+}
+
 export async function signin(req: FastifyRequest, reply: FastifyReply) {
+  // validate request body
+  const signinBody = z.object({
+    email: z.string().email(),
+    password: z.string().min(6),
+  });
+
+  const { email, password } = signinBody.parse(req.body);
+
   try {
-    reply.status(200).send({ message: "it's working" });
+    const { data: user } = await client
+      .query<{ data: User }>(
+        q.Get(q.Match(q.Index("user_by_email"), q.Casefold(email)))
+      )
+      .catch(() => {
+        return reply.status(404).send({ message: "Incorrect email" });
+      });
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return reply.status(404).send({ message: "Incorrect password" });
+    }
+
+    const token = jwt.sign(
+      { email, name: user.name },
+      process.env.JWT_SECRET as string,
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    return reply.status(200).send({ token, user: { email, name: user.name } });
   } catch (error) {
-    reply.send(error);
+    console.error(error);
+
+    return reply.send(error);
   }
 }
 

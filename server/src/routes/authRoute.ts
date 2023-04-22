@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { signin, signup } from "../controllers/authController";
 
-export default async function (app: FastifyInstance) {
-  app.get("/signin", signin);
+export async function authRoutes(app: FastifyInstance) {
+  app.post("/signin", signin);
   app.post("/signup", signup);
 }
