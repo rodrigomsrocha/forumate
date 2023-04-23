@@ -7,17 +7,22 @@
     "dev": "tsx watch src/server.ts"
   },
   "dependencies": {
+    "@fastify/middie": "^8.1.0",
     "bcrypt": "^5.1.0",
     "dotenv": "^16.0.3",
     "fastify": "^4.15.0",
+    "fastify-auth": "^1.2.0",
+    "fastify-plugin": "^4.5.0",
     "faunadb": "^4.8.0",
     "jsonwebtoken": "^9.0.0",
+    "uuid": "^9.0.0",
     "zod": "^3.21.4"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.1",
     "@types/node": "^18.15.13",
+    "@types/uuid": "^9.0.1",
     "tsx": "^3.12.6",
     "typescript": "^5.0.4"
   }

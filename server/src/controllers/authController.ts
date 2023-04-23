@@ -2,10 +2,12 @@ import bcrypt from "bcrypt";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { query as q } from "faunadb";
 import jwt from "jsonwebtoken";
+import { v4 as uuid } from "uuid";
 import { z } from "zod";
 import { client } from "../lib/fauna";
 
 interface User {
+  id: string;
   name: string;
   email: string;
   password: string;
@@ -41,15 +43,13 @@ export async function signin(req: FastifyRequest, reply: FastifyReply) {
       return reply.status(404).send({ message: "Incorrect password" });
     }
 
-    const token = jwt.sign(
-      { email, name: user.name },
-      process.env.JWT_SECRET as string,
-      {
-        expiresIn: "1h",
-      }
-    );
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET as string, {
+      expiresIn: "1h",
+    });
 
-    return reply.status(200).send({ token, user: { email, name: user.name } });
+    return reply
+      .status(200)
+      .send({ token, user: { email, name: user.name, id: user.id } });
   } catch (error) {
     console.error(error);
 
@@ -69,11 +69,12 @@ export async function signup(req: FastifyRequest, reply: FastifyReply) {
 
   // hash password berfore saving the user
   const hashedPassword = hashPassword(password);
+  const id = uuid();
 
   try {
     // check if user already
-    const userExists = q.Exists(
-      q.Match(q.Index("user_by_email"), q.Casefold(email))
+    const userExists = await client.query(
+      q.Exists(q.Match(q.Index("user_by_email"), q.Casefold(email)))
     );
 
     if (userExists) {
@@ -83,16 +84,16 @@ export async function signup(req: FastifyRequest, reply: FastifyReply) {
     // create one if not
     await client.query(
       q.Create(q.Collection("users"), {
-        data: { email, name, password: hashedPassword },
+        data: { email, name, password: hashedPassword, id },
       })
     );
 
     // return token
-    const token = jwt.sign({ email, name }, process.env.JWT_SECRET as string, {
+    const token = jwt.sign({ id }, process.env.JWT_SECRET as string, {
       expiresIn: "1h",
     });
 
-    return reply.status(201).send({ token, user: { email, name } });
+    return reply.status(201).send({ token, user: { email, name, id } });
   } catch (error) {
     console.error(error);
 

@@ -1,10 +1,12 @@
 import Fastify from "fastify";
 
-import { authRoutes } from "./routes/authRoute";
+import { authRoutes } from "./routes/authRoutes";
+import { discussionsRoutes } from "./routes/discussionRoutes";
 
 const app = Fastify();
 
 app.register(authRoutes);
+app.register(discussionsRoutes);
 
 app
   .listen({ port: 3001 })
