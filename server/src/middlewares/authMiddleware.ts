@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import * as jwt from "jsonwebtoken";
+import { z } from "zod";
 
 interface AuthMiddlewareRequest extends FastifyRequest {
   userID?: string;
@@ -17,7 +18,13 @@ export async function authMiddleware(
 
     const token = authHeader.slice("Bearer ".length);
 
-    const { id } = jwt.verify(token, process.env.JWT_SECRET as string);
+    const jwtToken = z.object({
+      id: z.string(),
+    });
+
+    const { id } = jwtToken.parse(
+      jwt.verify(token, process.env.JWT_SECRET as string)
+    );
 
     req.userID = id;
     return;

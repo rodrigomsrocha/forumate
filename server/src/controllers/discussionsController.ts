@@ -4,17 +4,19 @@ import { v4 as uuid } from "uuid";
 import { z } from "zod";
 import { client } from "../lib/fauna";
 
+type Discussion = {
+  id: string;
+  title: string;
+  content: string;
+  userId: string;
+};
+
 interface DiscussionsQuery {
   after?: {
     id: string;
   }[];
   data: {
-    data: {
-      id: string;
-      title: string;
-      content: string;
-      userId: string;
-    };
+    data: Discussion;
     ts: number;
     ref: {
       id: string;
@@ -81,8 +83,6 @@ export async function getAllDiscussions(
     const discussions = response.data.map((discussion) => {
       return {
         ...discussion.data,
-        ts: discussion.ts,
-        id: discussion.ref.id,
       };
     });
 
@@ -90,6 +90,28 @@ export async function getAllDiscussions(
       after: response.after ? response.after[0].id : null,
       discussions,
     });
+  } catch (error) {
+    return reply.send(error);
+  }
+}
+
+export async function getDiscussion(req: FastifyRequest, reply: FastifyReply) {
+  const getDiscussionParams = z.object({
+    id: z.string(),
+  });
+
+  const { id } = getDiscussionParams.parse(req.params);
+
+  try {
+    const { data } = await client
+      .query<{ data: Discussion }>(
+        q.Get(q.Match(q.Index("discussion_by_id"), q.Casefold(id)))
+      )
+      .catch(() => {
+        return reply.status(404).send({ message: "Discussion not found" });
+      });
+
+    return reply.send({ discussion: data });
   } catch (error) {
     return reply.send(error);
   }
