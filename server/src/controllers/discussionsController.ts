@@ -116,3 +116,39 @@ export async function getDiscussion(req: FastifyRequest, reply: FastifyReply) {
     return reply.send(error);
   }
 }
+
+export async function updateDiscussion(
+  req: FastifyRequest,
+  reply: FastifyReply
+) {
+  const updateDiscussionParams = z.object({
+    id: z.string(),
+  });
+  const updateDiscussionBody = z.object({
+    title: z.string(),
+    content: z.string(),
+  });
+
+  const body = updateDiscussionBody.parse(req.body);
+  const params = updateDiscussionParams.parse(req.params);
+
+  try {
+    const response = await client
+      .query<{ data: Discussion }>(
+        q.Update(
+          q.Select(
+            ["ref"],
+            q.Get(q.Match(q.Index("discussion_by_id"), q.Casefold(params.id)))
+          ),
+          { data: body }
+        )
+      )
+      .catch(() => {
+        return reply.status(404).send({ message: "Discussion not found" });
+      });
+
+    return reply.send({ discussion: response.data }).status(200);
+  } catch (error) {
+    return reply.send(error);
+  }
+}
