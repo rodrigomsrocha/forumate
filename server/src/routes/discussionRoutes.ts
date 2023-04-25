@@ -1,6 +1,7 @@
 import { FastifyInstance } from "fastify";
 import {
   createDiscussion,
+  deleteDiscussion,
   getAllDiscussions,
   getDiscussion,
   updateDiscussion,
@@ -15,5 +16,10 @@ export async function discussionsRoutes(app: FastifyInstance) {
     "/discussions/:id",
     { preValidation: authMiddleware },
     updateDiscussion
+  );
+  app.delete(
+    "/discussions/:id",
+    { preValidation: authMiddleware },
+    deleteDiscussion
   );
 }

@@ -152,3 +152,35 @@ export async function updateDiscussion(
     return reply.send(error);
   }
 }
+
+export async function deleteDiscussion(
+  req: FastifyRequest,
+  reply: FastifyReply
+) {
+  const deleteDiscussionParams = z.object({
+    id: z.string(),
+  });
+
+  const params = deleteDiscussionParams.parse(req.params);
+
+  try {
+    await client
+      .query(
+        q.Delete(
+          q.Select(
+            ["ref"],
+            q.Get(q.Match(q.Index("discussion_by_id"), q.Casefold(params.id)))
+          )
+        )
+      )
+      .catch(() => {
+        return reply.status(404).send({ message: "Discussion not found" });
+      });
+
+    return reply
+      .status(204)
+      .send({ message: "Discussion deleted successfully" });
+  } catch (error) {
+    return reply.send(error);
+  }
+}
