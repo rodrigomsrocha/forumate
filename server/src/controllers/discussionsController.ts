@@ -25,7 +25,7 @@ interface DiscussionsQuery {
 }
 
 interface CreateDiscussionRequest extends FastifyRequest {
-  userID?: string;
+  user?: {} | null;
 }
 
 export async function createDiscussion(
@@ -44,7 +44,7 @@ export async function createDiscussion(
   const newDiscussion = {
     id: discussionId,
     ...body,
-    userID: req.userID,
+    userID: req.user.id,
   };
 
   try {
@@ -135,16 +135,30 @@ export async function updateDiscussion(
   try {
     const response = await client
       .query<{ data: Discussion }>(
-        q.Update(
-          q.Select(
-            ["ref"],
-            q.Get(q.Match(q.Index("discussion_by_id"), q.Casefold(params.id)))
+        q.If(
+          q.Equals(
+            q.Select(
+              ["data", "userID"],
+              q.Get(q.Match(q.Index("discussion_by_id"), q.Casefold(params.id)))
+            ),
+            req.user.id
           ),
-          { data: body }
+          q.Update(
+            q.Select(
+              ["ref"],
+              q.Get(q.Match(q.Index("discussion_by_id"), q.Casefold(params.id)))
+            ),
+            { data: body }
+          ),
+          q.Abort("User is not authorized")
         )
       )
-      .catch(() => {
-        return reply.status(404).send({ message: "Discussion not found" });
+      .catch((error) => {
+        if (error.description === "User is not authorized") {
+          return reply.status(401).send({ message: "User not authorized" });
+        } else {
+          return reply.status(404).send({ message: "Discussion not found" });
+        }
       });
 
     return reply.send({ discussion: response.data }).status(200);

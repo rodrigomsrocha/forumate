@@ -7,7 +7,9 @@
     "dev": "tsx watch src/server.ts"
   },
   "dependencies": {
+    "@clerk/fastify": "^0.2.6",
     "@fastify/middie": "^8.1.0",
+    "@types/dotenv": "^8.2.0",
     "bcrypt": "^5.1.0",
     "dotenv": "^16.0.3",
     "fastify": "^4.15.0",

@@ -1,34 +1,34 @@
+import { createClerkClient } from "@clerk/fastify";
 import { FastifyReply, FastifyRequest } from "fastify";
-import * as jwt from "jsonwebtoken";
-import { z } from "zod";
 
 interface AuthMiddlewareRequest extends FastifyRequest {
-  userID?: string;
+  user?: {} | null;
 }
+
+const clerkClient = createClerkClient({
+  publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+  secretKey: process.env.CLERK_SECRET_KEY,
+});
 
 export async function authMiddleware(
   req: AuthMiddlewareRequest,
   reply: FastifyReply
 ) {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return reply.status(401).send({ message: "You're not authorized" });
-    }
+    // const { userId } = getAuth(req);
+    // if (!userId) {
+    //   return reply.code(403).send();
+    // }
 
-    const token = authHeader.slice("Bearer ".length);
+    const user = true
+      ? await clerkClient.users.getUser("user_2PArCa1M0kYXov1HAPmF45kxbot")
+      : null;
 
-    const jwtToken = z.object({
-      id: z.string(),
-    });
-
-    const { id } = jwtToken.parse(
-      jwt.verify(token, process.env.JWT_SECRET as string)
-    );
-
-    req.userID = id;
+    req.user = user;
     return;
   } catch (error) {
-    return reply.status(401).send({ message: "You're not authorized" });
+    console.log(error);
+
+    return reply.status(401).send({ message: "You're not authenticated" });
   }
 }
