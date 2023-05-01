@@ -179,21 +179,33 @@ export async function deleteDiscussion(
 
   try {
     await client
-      .query(
-        q.Delete(
-          q.Select(
-            ["ref"],
-            q.Get(q.Match(q.Index("discussion_by_id"), q.Casefold(params.id)))
-          )
+      .query<{ data: Discussion }>(
+        q.If(
+          q.Equals(
+            q.Select(
+              ["data", "userID"],
+              q.Get(q.Match(q.Index("discussion_by_id"), q.Casefold(params.id)))
+            ),
+            req.user.id
+          ),
+          q.Delete(
+            q.Select(
+              ["ref"],
+              q.Get(q.Match(q.Index("discussion_by_id"), q.Casefold(params.id)))
+            )
+          ),
+          q.Abort("User is not authorized")
         )
       )
-      .catch(() => {
-        return reply.status(404).send({ message: "Discussion not found" });
+      .catch((error) => {
+        if (error.description === "User is not authorized") {
+          return reply.status(401).send({ message: "User not authorized" });
+        } else {
+          return reply.status(404).send({ message: "Discussion not found" });
+        }
       });
 
-    return reply
-      .status(204)
-      .send({ message: "Discussion deleted successfully" });
+    return reply.status(204);
   } catch (error) {
     return reply.send(error);
   }
