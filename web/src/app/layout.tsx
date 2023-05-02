@@ -3,6 +3,7 @@ import { Sidebar } from '~/components/Sidebar'
 import './globals.css'
 
 import '@phosphor-icons/web/regular'
+import { Header } from '~/components/Header'
 
 export const metadata = {
   title: {
@@ -24,7 +25,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body className="bg-primary-gray text-primary-text pl-20">
         <Sidebar />
-        {children}
+        <div className="max-w-7xl mx-auto">
+          <Header />
+          {children}
+        </div>
       </body>
     </html>
   )

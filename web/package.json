@@ -11,6 +11,7 @@
   "dependencies": {
     "@phosphor-icons/react": "^2.0.9",
     "@phosphor-icons/web": "^2.0.3",
+    "@radix-ui/react-select": "^1.2.1",
     "@types/node": "18.16.1",
     "@types/react": "18.2.0",
     "@types/react-dom": "18.2.1",
