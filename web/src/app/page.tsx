@@ -1,14 +1,21 @@
+import { DiscussionType } from '~/@types/app'
+import { Discussion } from '~/components/Discussion'
+import { api } from '~/lib/api'
+
 export const metadata = {
   title: 'Home | Forumate',
 }
 
-export default function Home() {
+export default async function Home() {
+  const { data } = await api.get<{ discussions: DiscussionType[] }>(
+    '/discussions',
+  )
+
   return (
-    <div>
-      <h1>
-        Home Lorem ipsum dolor sit amet consectetur adipisicing elit. Porro
-        inventore soluta maxime cumque quasi expedita hic deserunt ex rerum sed.
-      </h1>
+    <div className="flex flex-col gap-8 w-full">
+      {data.discussions.map((discussion) => {
+        return <Discussion key={discussion.id} discussion={discussion} />
+      })}
     </div>
   )
 }

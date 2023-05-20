@@ -23,9 +23,9 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className="bg-primary-gray text-primary-text pl-20">
+      <body className="grid grid-cols-[auto,1fr] bg-primary-gray text-primary-text">
         <Sidebar />
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-4xl w-full mx-auto pb-8 px-8">
           <Header />
           {children}
         </div>

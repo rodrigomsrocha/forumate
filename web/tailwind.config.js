@@ -13,6 +13,7 @@ module.exports = {
         'primary-gray': '#070707',
         'secondary-gray': '#181818',
         'accent-yellow': '#ffcc4a',
+        'accent-purple': '#c07ecf',
       },
     },
   },

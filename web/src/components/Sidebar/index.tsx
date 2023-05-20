@@ -8,25 +8,36 @@ export function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="fixed top-0 bottom-0 left-0 w-20 bg-secondary-gray flex flex-col justify-between items-center py-8">
-      <Image src="/logo.svg" alt="F" width={20} height={20} />
+    <aside className="self-start h-screen lg:w-72 items-center lg:items-start sticky top-0 bottom-0 bg-secondary-gray flex flex-col justify-between px-4 py-8 sm:p-8">
+      <div className="flex items-center gap-4">
+        <div className="w-4 h-4">
+          <Image src="/logo.svg" alt="Forumate logo" width={40} height={40} />
+        </div>
+        <h1 className="hidden text-xl font-bold lg:block">Forumate</h1>
+      </div>
       <div className="flex flex-col gap-8">
-        <Link className={pathname === '/' ? 'text-accent-yellow' : ''} href="/">
-          <i className="ph ph-house text-2xl"></i>
-        </Link>
         <Link
-          className={pathname === '/user' ? 'text-accent-yellow' : ''}
-          href="/user"
+          className={`flex gap-4 items-center
+            ${pathname === '/' ? 'text-accent-yellow font-bold' : ''}
+          `}
+          href="/"
         >
-          <i className="ph ph-user text-2xl"></i>
+          <i className="ph ph-house text-xl sm:text-2xl"></i>
+          <span className="hidden lg:block">Home</span>
         </Link>
-        <button>
-          <i className="ph ph-notification text-2xl"></i>
+        <button className="flex gap-4 items-center">
+          <i className="ph ph-notification text-xl sm:text-2xl"></i>
+          <span className="hidden lg:block">Notifications</span>
         </button>
       </div>
-      <button>
-        <i className="ph ph-sign-out text-2xl"></i>
-      </button>
+      <Link href="/user" className="w-full flex gap-2 items-center text-left group">
+        <div className="w-10 h-10 bg-primary-gray rounded-full flex items-center justify-center">
+          <i className="ph ph-user text-xl sm:text-2xl"></i>
+        </div>
+        <p className="text-sm hidden lg:block transition-colors group-hover:text-secondary-text">
+          <span className='underline'>Sign up</span> and start a discussion
+        </p>
+      </Link>
     </aside>
   )
 }
